@@ -29,19 +29,20 @@ class Api_calls:
     def  post_api(query):
         try:
             post_data=Api_methods.post_common(query)
+            print(post_data)
 
-            if "Error" in post_data:
-                return {
-                    "Result":0,
-                    "Message":"Fails",
-                    "Api-result":""
-                }
-            succes_data= {
+            if post_data.get("Message")=="Data Submitted Successfully!":
+                succes_data= {
                 "Result":1,
                 "Message":"Success",
                 "Api-result":post_data
+                }
+                return succes_data
+            return {
+                "Result":0,
+                "Message":"Fails",
+                "Api-result":""
             }
-            return succes_data
         except Exception as err:
             return{
                 "Result":0,

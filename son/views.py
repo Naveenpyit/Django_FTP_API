@@ -45,32 +45,28 @@ def post_group_product_detail(request):
         finish=request.data.get('finish')
         img=request.data.get('imagepath')
 
-        image=store_ftp.base_64(img,code)
+        image=store_ftp.ftp_img(img,code)
         if image.get("Message")=="Success":
-            imagepath=store_ftp.ftp_method(image.get('File_path'))
-        # print(imagepath)
-
-        if "Error" in imagepath:
-            return JsonResponse({"Result":0,"Message":imagepath["Error"]},safe=False,status=status.HTTP_400_BAD_REQUEST)
+            imagepath=image.get("Ftp-path")
         
         check_query=f"Select * from group_product_detail where grpcode={code}"
         check=Api_calls.get_api(check_query)
-        print(check)
+        # print(check)
 
-        if isinstance(check,dict) and check.get("Api-result")=="Row doesn't Exist!,Need to Insert!":
+        if isinstance(check,dict) and check["Api-result"]=="Row doesn't Exist!,Need to Insert!":
             insert_query=f""" Insert into group_product_detail(grpcode,ngrpname,mtrlcode,mtrldesc,tags,
                         secgroup,libry,season,mtrltype,composition,weight,brand,finish,imagepath,adduser,adddate,deleted)
                         values({code},'{ngname}',{mcode},'{mdesc}','{tags}','{sgrp}','{libry}',
                         '{season}','{mtype}','{comp}','{weight}','{brand}','{finish}','{imagepath}',7661288,current_date,'N') """
             insert=Api_calls.post_api(insert_query)
-
+            # print(insert)
             if isinstance(insert,dict)and insert.get('Result')==1:
                 return JsonResponse(insert,safe=False,status=status.HTTP_201_CREATED)
             return JsonResponse({"Result":0,"Message":"Not Possible to Insert!","Api-result":""},safe=False,status=status.HTTP_400_BAD_REQUEST)
         else:
             update_query=f"""Update  group_product_detail set ngrpname='{ngname}',mtrlcode={mcode},mtrldesc='{mdesc}',tags='{tags}',secgroup='{sgrp}',
                         libry='{libry}',season='{season}',mtrltype='{mtype}',composition='{comp}',weight='{weight}',brand='{brand}',finish='{finish}',
-                        imagepath='{imagepath}' where grpcode={code} """
+                        imagepath='{imagepath}',edtuser=1849188,edtdate=current_date where grpcode={code} """
             update=Api_calls.put_api(update_query)
 
             if isinstance(update,dict) and update.get('Message')=="Success":
